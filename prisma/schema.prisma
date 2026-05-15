@@ -1,0 +1,203 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               Int               @id @default(autoincrement())
+  username         String            @unique
+  password         String
+  status           String            @default("A") @db.VarChar(50)
+  employeeId       Int
+  employee         Employee          @relation(fields: [employeeId], references: [id])
+  roleId           Int
+  role             Role              @relation(fields: [roleId], references: [id])
+  createdAt        DateTime          @default(now()) @db.Timestamptz(0)
+  updatedAt        DateTime          @updatedAt @db.Timestamptz(0)
+  fcmtokens        FcmToken[]
+  meetingDocs      MeetingDoc[]
+  assigns          Assign[]
+  detailDocAssigns DetailDocAssign[]
+  responsibles     Responsible[]
+}
+
+model Responsible {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id])
+  divisionId Int?
+  division   Division? @relation(fields: [divisionId], references: [id])
+  officeId   Int?
+  office     Office?   @relation(fields: [officeId], references: [id])
+
+  @@unique([userId, divisionId, officeId])
+}
+
+model FcmToken {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+  platform String @db.VarChar(255)
+  model    String @db.VarChar(255)
+  fcmtoken String @db.VarChar(255)
+
+  @@unique([userId, platform, model])
+}
+
+model Employee {
+  id           Int         @id
+  first_name   String      @db.VarChar(255)
+  last_name    String      @db.VarChar(255)
+  emp_code     String      @unique @db.VarChar(255)
+  status       String      @default("A") @db.VarChar(50)
+  gender       String?     @db.VarChar(255)
+  tel          String?     @db.VarChar(255)
+  email        String?     @db.VarChar(255)
+  empimg       String?     @db.VarChar(255)
+  posId        Int?
+  position     Position?   @relation(fields: [posId], references: [id])
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  divisionId   Int?
+  division     Division?   @relation(fields: [divisionId], references: [id])
+  officeId     Int?
+  office       Office?     @relation(fields: [officeId], references: [id])
+  unitId       Int?
+  unit         Unit?       @relation(fields: [unitId], references: [id])
+  createdAt    DateTime    @default(now()) @db.Timestamptz(0)
+  updatedAt    DateTime    @updatedAt @db.Timestamptz(0)
+  user         User[]
+}
+
+model Department {
+  id                Int        @id
+  department_name   String?    @db.VarChar(255)
+  department_code   String?    @db.VarChar(50)
+  department_status String     @default("A") @db.VarChar(50)
+  divisions         Division[]
+  employees         Employee[]
+}
+
+model Division {
+  id              Int           @id
+  division_name   String?       @db.VarChar(255)
+  division_code   String?       @db.VarChar(50)
+  division_status String        @default("A") @db.VarChar(50)
+  branch_id       Int?
+  departmentId    Int
+  department      Department    @relation(fields: [departmentId], references: [id])
+  offices         Office[]
+  units           Unit[]
+  employees       Employee[]
+  responsibles    Responsible[]
+}
+
+model Office {
+  id            Int           @id
+  office_name   String?       @db.VarChar(255)
+  office_code   String?       @db.VarChar(50)
+  office_status String        @default("A") @db.VarChar(50)
+  divisionId    Int?
+  division      Division?     @relation(fields: [divisionId], references: [id])
+  units         Unit[]
+  employees     Employee[]
+  responsibles  Responsible[]
+}
+
+model Unit {
+  id          Int        @id
+  unit_name   String?    @db.VarChar(255)
+  unit_code   String?    @db.VarChar(50)
+  unit_status String     @default("A") @db.VarChar(50)
+  unit_type   String?    @db.VarChar(50)
+  divisionId  Int?
+  division    Division?  @relation(fields: [divisionId], references: [id])
+  officeId    Int?
+  office      Office?    @relation(fields: [officeId], references: [id])
+  employees   Employee[]
+}
+
+model PositionGroup {
+  id             Int            @id
+  pos_group_name String         @db.VarChar(255)
+  positioncodes  PositionCode[]
+}
+
+model PositionCode {
+  id              Int            @id
+  pos_code_name   String         @db.VarChar(255)
+  pos_code_status String         @default("A") @db.VarChar(50)
+  posgroupId      Int?
+  positiongroup   PositionGroup? @relation(fields: [posgroupId], references: [id])
+  positions       Position[]
+}
+
+model Position {
+  id           Int           @id
+  pos_name     String        @db.VarChar(255)
+  pos_status   String        @default("A") @db.VarChar(50)
+  poscodeId    Int?
+  positioncode PositionCode? @relation(fields: [poscodeId], references: [id])
+  employees    Employee[]
+}
+
+model Role {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(255)
+  description String? @db.VarChar(255)
+  users       User[]
+}
+
+model MeetingDoc {
+  id          Int         @id @default(autoincrement())
+  title       String      @db.VarChar(255)
+  description String?     @db.Text
+  startDate   DateTime    @db.Timestamptz(0)
+  endDate     DateTime    @db.Timestamptz(0)
+  startTime   String      @db.VarChar(50)
+  endTime     String      @db.VarChar(50)
+  location    String?     @db.Text
+  docfile     String      @db.VarChar(255)
+  createdById Int
+  createdBy   User        @relation(fields: [createdById], references: [id])
+  createdAt   DateTime    @default(now()) @db.Timestamptz(0)
+  updatedAt   DateTime    @updatedAt @db.Timestamptz(0)
+  assigns     Assign[]
+  detailDocs  DetailDoc[]
+
+  @@index([createdById])
+}
+
+model Assign {
+  id           Int        @id @default(autoincrement())
+  meetingDocId Int
+  meetingDoc   MeetingDoc @relation(fields: [meetingDocId], references: [id])
+  assignId     Int
+  assign       User       @relation(fields: [assignId], references: [id])
+
+  @@unique([meetingDocId, assignId])
+}
+
+model DetailDoc {
+  id               Int               @id @default(autoincrement())
+  meetingDocId     Int
+  meetingDoc       MeetingDoc        @relation(fields: [meetingDocId], references: [id])
+  dateActive       DateTime          @db.Timestamptz(0)
+  timeActive       String            @db.VarChar(50)
+  detailDocAssigns DetailDocAssign[]
+}
+
+model DetailDocAssign {
+  id             Int       @id @default(autoincrement())
+  detailDocId    Int
+  detailDoc      DetailDoc @relation(fields: [detailDocId], references: [id])
+  detailAssignId Int
+  detailAssign   User      @relation(fields: [detailAssignId], references: [id])
+
+  @@unique([detailDocId, detailAssignId])
+}
