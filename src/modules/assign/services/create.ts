@@ -118,7 +118,7 @@ export async function createAssign(
     await sendFCM(
       tokens,
       meeting.title,
-      `ວັນເວລາ: ${dateText} ${meeting.startTime} - ${meeting.endTime}`,
+      `ວັນເວລາ: ${dateText} ${meeting.startTime} - ${meeting.endTime} ສະຖານທີ່: ${meeting.location}`,
     );
   }
 
