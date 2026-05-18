@@ -45,7 +45,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(
     username: string,
@@ -140,7 +140,7 @@ export class AuthService {
       // branch_id: user.employee.division?.branch_id,
     };
 
-    const expiresIn = '10h';
+    const expiresIn = '1h';
 
     return {
       token: this.jwtService.sign(payload, { expiresIn }),

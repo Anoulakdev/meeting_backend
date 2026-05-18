@@ -18,9 +18,28 @@ export interface UserRequest extends Request {
       divisionId: number;
       officeId: number;
       unitId: number;
+      department: {
+        id: number;
+        department_name: string;
+      } | null;
       division: {
         id: number;
+        division_name: string;
         branch_id: number | null;
+      } | null;
+      office: {
+        id: number;
+        office_name: string;
+        unitId: number | null;
+      } | null;
+      unit: {
+        id: number;
+        unit_name: string;
+        divisionId: number | null;
+      } | null;
+      position: {
+        id: number;
+        pos_name: string;
       } | null;
     };
   };

@@ -8,7 +8,7 @@ export async function findAllOffice(
   return prisma.office.findMany({
     where: where,
     orderBy: {
-      id: 'asc',
+      office_code: 'asc',
     },
   });
 }

@@ -7,13 +7,27 @@ export async function findAllUser(prisma: PrismaService, divisionId?: number) {
 
   return prisma.user.findMany({
     where: where,
-    orderBy: {
-      id: 'asc',
-    },
+    orderBy: [
+      {
+        employee: {
+          position: {
+            poscodeId: 'asc',
+          },
+        },
+      },
+      {
+        employee: {
+          division: {
+            division_code: 'asc',
+          },
+        },
+      },
+    ],
     select: {
       id: true,
       username: true,
       employeeId: true,
+      status: true,
       roleId: true,
       role: true,
       employee: {

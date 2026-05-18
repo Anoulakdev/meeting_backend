@@ -23,14 +23,12 @@ export async function adminFindAll(prisma: PrismaService, user: AuthUser) {
     .map((r) => r.officeId)
     .filter((id): id is number => id != null);
 
-  // ✅ 3. สร้าง where dynamic
-  let where: any = {
-    status: 'A',
-  };
+  let where = {};
 
   if (divisionIds.length) {
     // 👉 มี division → office ต้องเป็น null
     where = {
+      status: 'A',
       employee: {
         divisionId: {
           in: divisionIds,
@@ -41,6 +39,7 @@ export async function adminFindAll(prisma: PrismaService, user: AuthUser) {
   } else if (officeIds.length) {
     // 👉 มี office → division ต้องเป็น null
     where = {
+      status: 'A',
       employee: {
         officeId: {
           in: officeIds,

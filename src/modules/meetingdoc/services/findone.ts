@@ -32,6 +32,7 @@ export async function findOneMeetingDoc(prisma: PrismaService, id: number) {
                   last_name: true,
                   gender: true,
                   emp_code: true,
+                  empimg: true,
                 },
               },
             },
