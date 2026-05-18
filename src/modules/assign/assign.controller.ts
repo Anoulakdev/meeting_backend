@@ -19,7 +19,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('assigns')
 export class AssignController {
-  constructor(private readonly assignService: AssignService) {}
+  constructor(private readonly assignService: AssignService) { }
 
   @Post()
   @Roles(2)
@@ -30,6 +30,12 @@ export class AssignController {
   @Get()
   findAll(@Req() req: UserRequest) {
     return this.assignService.findAll(req.user);
+  }
+
+  @Get("detaildoc")
+  @Roles(1)
+  detailDoc() {
+    return this.assignService.detailDoc();
   }
 
   @Get(':id')

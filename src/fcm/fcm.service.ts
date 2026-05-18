@@ -1,20 +1,17 @@
 import * as admin from 'firebase-admin';
 import * as path from 'path';
 
-let initialized = false;
-
 export function initFirebase() {
-  if (initialized) return;
+  if (admin.apps.length > 0) return;
 
   const serviceAccount = require(
-    path.join(process.cwd(), '../config/firebase.service-account.json'),
+    path.join(process.cwd(), 'src/config/firebase.service-account.json'),
   );
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
+    projectId: serviceAccount.project_id,
   });
-
-  initialized = true;
 }
 
 // ===============================

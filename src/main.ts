@@ -21,7 +21,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://api-test.edl.com.la/meeting_notice'],
+    origin: ['http://localhost:3000', 'http://192.168.20.163:3000', 'https://api-test.edl.com.la/meeting_notice'],
     credentials: true,
   });
 

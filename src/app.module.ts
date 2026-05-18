@@ -17,10 +17,12 @@ import { RoleModule } from './modules/role/role.module';
 import { MeetingdocModule } from './modules/meetingdoc/meetingdoc.module';
 import { AssignModule } from './modules/assign/assign.module';
 import { ResponsibleModule } from './modules/responsible/responsible.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     UserModule,
     AuthModule,
@@ -40,4 +42,4 @@ import { ResponsibleModule } from './modules/responsible/responsible.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

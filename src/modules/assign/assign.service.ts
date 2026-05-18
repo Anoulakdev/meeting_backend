@@ -7,16 +7,21 @@ import { createAssign } from './services/create';
 import { FindAllAssign } from './services/findall';
 import { findOneAssign } from './services/findone';
 import { updateAssign } from './services/update';
+import { detailDoc } from './services/detailDoc';
 
 @Injectable()
 export class AssignService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   create(createAssignDto: CreateAssignDto) {
     return createAssign(this.prisma, createAssignDto);
   }
 
   findAll(user: AuthUser) {
     return FindAllAssign(this.prisma, user);
+  }
+
+  detailDoc() {
+    return detailDoc(this.prisma);
   }
 
   findOne(id: number) {
