@@ -20,8 +20,14 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://192.168.20.163:3000',
+    'https://api-test.edl.com.la',
+  ];
+
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://192.168.20.163:3000', 'https://api-test.edl.com.la'],
+    origin: allowedOrigins,
     credentials: true,
   });
 
@@ -32,6 +38,7 @@ async function bootstrap() {
 
   app.use('/upload', express.static(path.resolve(uploadBasePath)));
 
-  await app.listen(7000);
+  const port = process.env.PORT || 7000;
+  await app.listen(port);
 }
 bootstrap();
