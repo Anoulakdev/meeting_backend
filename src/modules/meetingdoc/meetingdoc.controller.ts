@@ -57,9 +57,19 @@ export class MeetingdocController {
   @Roles(2)
   findAll(
     @Req() req: UserRequest,
-    @Query() query: FindAllMeetingDocOptions,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
-    return this.meetingdocService.findAll(req.user, query);
+    return this.meetingdocService.findAll(req.user, {
+      page,
+      limit,
+      search,
+      startDate,
+      endDate,
+    });
   }
 
   @Get(':id')
