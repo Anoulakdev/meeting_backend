@@ -21,7 +21,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post()
   @Roles(1)
@@ -31,8 +31,26 @@ export class UserController {
 
   @Get()
   @Roles(1)
-  findAll(@Query('divisionId') divisionId?: number) {
-    return this.userService.findAll(divisionId);
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('roleId') roleId?: number,
+    @Query('status') status?: string,
+    @Query('departmentId') departmentId?: number,
+    @Query('divisionId') divisionId?: number,
+    @Query('posId') posId?: number,
+  ) {
+    return this.userService.findAll({
+      page,
+      limit,
+      search,
+      roleId,
+      status,
+      departmentId,
+      divisionId,
+      posId,
+    });
   }
 
   @Get('admin')

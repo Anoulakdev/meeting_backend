@@ -11,7 +11,7 @@ import { detailDoc } from './services/detailDoc';
 
 @Injectable()
 export class AssignService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   create(createAssignDto: CreateAssignDto) {
     return createAssign(this.prisma, createAssignDto);
   }

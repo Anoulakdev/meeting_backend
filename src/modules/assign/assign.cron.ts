@@ -50,22 +50,32 @@ export class AssignCronService {
         const [hours, minutes] = timeStr.split(':').map(Number);
 
         // Construct the meeting time
-        const meetingTime = now.clone().hours(hours).minutes(minutes).seconds(0).milliseconds(0);
+        const meetingTime = now
+          .clone()
+          .hours(hours)
+          .minutes(minutes)
+          .seconds(0)
+          .milliseconds(0);
 
         // Calculate the difference in minutes
         const diffMinutes = Math.round(meetingTime.diff(now, 'minutes', true));
 
         // Check for 30, 15, or 5 minutes before
-        if (diffMinutes === 30 || diffMinutes === 15 || diffMinutes === 5) {
+        if (diffMinutes === 10 || diffMinutes === 5 || diffMinutes === 1) {
           const tokens: string[] = [];
 
           for (const assign of doc.detailDocAssigns) {
             if (assign.detailAssign && assign.detailAssign.fcmtokens) {
-              tokens.push(...assign.detailAssign.fcmtokens.map((t) => t.fcmtoken));
+              tokens.push(
+                ...assign.detailAssign.fcmtokens.map((t) => t.fcmtoken),
+              );
             }
           }
 
-          const dateText = moment(doc.meetingDoc.startDate).isSame(moment(doc.meetingDoc.endDate), 'day')
+          const dateText = moment(doc.meetingDoc.startDate).isSame(
+            moment(doc.meetingDoc.endDate),
+            'day',
+          )
             ? moment(doc.meetingDoc.startDate).format('DD/MM/YYYY')
             : `${moment(doc.meetingDoc.startDate).format('DD/MM/YYYY')} - ${moment(doc.meetingDoc.endDate).format('DD/MM/YYYY')}`;
 
@@ -77,19 +87,28 @@ export class AssignCronService {
             const body = `ວັນເວລາ: ${dateText} ${doc.meetingDoc.startTime} - ${doc.meetingDoc.endTime} ສະຖານທີ່: ${doc.meetingDoc.location}`;
 
             await sendFCM(uniqueTokens, title, body);
-            this.logger.log(`[Cron] Sent FCM to ${uniqueTokens.length} devices for detailDoc ${doc.id} (${diffMinutes} mins left)`);
+            this.logger.log(
+              `[Cron] Sent FCM to ${uniqueTokens.length} devices for detailDoc ${doc.id} (${diffMinutes} mins left)`,
+            );
             sentCount++;
           }
         }
       }
 
       if (sentCount === 0) {
-        this.logger.log('Cronjob finished: No notifications needed to be sent this minute.');
+        this.logger.log(
+          'Cronjob finished: No notifications needed to be sent this minute.',
+        );
       } else {
-        this.logger.log(`Cronjob finished: Successfully processed ${sentCount} notifications.`);
+        this.logger.log(
+          `Cronjob finished: Successfully processed ${sentCount} notifications.`,
+        );
       }
     } catch (error) {
-      this.logger.error(`Error in checkMeetingsAndNotify: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error in checkMeetingsAndNotify: ${error.message}`,
+        error.stack,
+      );
     }
   }
 }

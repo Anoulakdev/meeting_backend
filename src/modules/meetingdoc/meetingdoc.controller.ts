@@ -11,6 +11,7 @@ import {
   UploadedFile,
   BadRequestException,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { MeetingdocService } from './meetingdoc.service';
 import { CreateMeetingdocDto } from './dto/create-meetingdoc.dto';
@@ -21,6 +22,7 @@ import { multerConfig } from '../../config/multer.config';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { FindAllMeetingDocOptions } from './services/findall';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(FileInterceptor('docfile', multerConfig('document')))
@@ -53,8 +55,11 @@ export class MeetingdocController {
 
   @Get()
   @Roles(2)
-  findAll(@Req() req: UserRequest) {
-    return this.meetingdocService.findAll(req.user);
+  findAll(
+    @Req() req: UserRequest,
+    @Query() query: FindAllMeetingDocOptions,
+  ) {
+    return this.meetingdocService.findAll(req.user, query);
   }
 
   @Get(':id')

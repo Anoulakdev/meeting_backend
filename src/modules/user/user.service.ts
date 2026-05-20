@@ -5,7 +5,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../../interfaces/auth-user.interface';
 import { createUser } from './services/create';
-import { findAllUser } from './services/findall';
+import { findAllUser, FindAllUserOptions } from './services/findall';
 import { findOneUser } from './services/findone';
 import { updateUser } from './services/update';
 import { adminFindAll } from './services/adminfindall';
@@ -15,14 +15,14 @@ import { updateStatus } from './services/updateStatus';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   create() {
     return createUser(this.prisma);
   }
 
-  findAll(divisionId?: number) {
-    return findAllUser(this.prisma, divisionId);
+  findAll(options?: FindAllUserOptions) {
+    return findAllUser(this.prisma, options);
   }
 
   adminFindAll(user: AuthUser) {
