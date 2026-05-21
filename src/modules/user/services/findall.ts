@@ -103,6 +103,9 @@ export async function findAllUser(prisma: PrismaService, options: FindAllUserOpt
         },
       },
     },
+    {
+      id: 'asc',
+    },
   ];
 
   if (page !== undefined && limit !== undefined) {
