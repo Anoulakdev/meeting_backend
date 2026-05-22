@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Put,
+  Delete,
   Param,
   UseGuards,
   Query,
@@ -85,5 +86,11 @@ export class UserController {
   @Roles(1)
   resetPassword(@Param('id') id: string) {
     return this.userService.resetPassword(+id);
+  }
+
+  @Delete('deletefcm/:id')
+  @Roles(1)
+  removeFcmToken(@Param('id') id: string) {
+    return this.userService.removeFcmToken(+id);
   }
 }

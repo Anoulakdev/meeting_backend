@@ -12,6 +12,7 @@ import { adminFindAll } from './services/adminfindall';
 import { changePassword } from './services/changePassword';
 import { resetPassword } from './services/resetPassword';
 import { updateStatus } from './services/updateStatus';
+import { removeFcmToken } from './services/removeFcm';
 
 @Injectable()
 export class UserService {
@@ -47,5 +48,9 @@ export class UserService {
 
   resetPassword(id: number) {
     return resetPassword(this.prisma, id);
+  }
+
+  removeFcmToken(id: number) {
+    return removeFcmToken(this.prisma, id);
   }
 }

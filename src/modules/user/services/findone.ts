@@ -27,6 +27,7 @@ export async function findOneUser(prisma: PrismaService, id: number) {
           office: true,
         },
       },
+      fcmtokens: true,
     },
   });
   if (!user) throw new NotFoundException('User not found');

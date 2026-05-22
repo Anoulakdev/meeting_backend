@@ -22,13 +22,12 @@ import { multerConfig } from '../../config/multer.config';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { FindAllMeetingDocOptions } from './services/findall';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(FileInterceptor('docfile', multerConfig('document')))
 @Controller('meetingdocs')
 export class MeetingdocController {
-  constructor(private readonly meetingdocService: MeetingdocService) {}
+  constructor(private readonly meetingdocService: MeetingdocService) { }
 
   @Post()
   @Roles(2)
