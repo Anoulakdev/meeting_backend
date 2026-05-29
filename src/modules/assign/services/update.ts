@@ -134,11 +134,14 @@ export async function updateAssign(
     : `${startD.format('DD/MM/YYYY')} - ${endD.format('DD/MM/YYYY')}`;
 
   if (tokens.length > 0) {
-    await sendFCM(
+    // 🔥 ส่ง FCM ในรูปแบบ Asynchronous ใน Background โดยไม่ใช้ await ขวาง thread เพื่อป้องกันความล่าช้าในระดับ API Response
+    sendFCM(
       tokens,
       meeting.title,
       `ວັນເວລາ: ${dateText} ${meeting.startTime} - ${meeting.endTime} ສະຖານທີ່: ${meeting.location}`,
-    );
+    ).catch((err) => {
+      console.error('Error sending background FCM:', err);
+    });
   }
 
   return {
