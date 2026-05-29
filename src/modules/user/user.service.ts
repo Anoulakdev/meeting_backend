@@ -16,7 +16,7 @@ import { removeFcmToken } from './services/removeFcm';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   create() {
     return createUser(this.prisma);

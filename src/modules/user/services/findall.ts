@@ -12,7 +12,10 @@ export interface FindAllUserOptions {
   posId?: number;
 }
 
-export async function findAllUser(prisma: PrismaService, options: FindAllUserOptions = {}) {
+export async function findAllUser(
+  prisma: PrismaService,
+  options: FindAllUserOptions = {},
+) {
   const where: Prisma.UserWhereInput = {};
 
   if (options.roleId !== undefined && options.roleId !== null) {
@@ -62,7 +65,7 @@ export async function findAllUser(prisma: PrismaService, options: FindAllUserOpt
 
   if (Object.keys(employeeWhere).length > 0) {
     where.employee = {
-      ...(where.employee as Prisma.EmployeeWhereInput || {}),
+      ...(where.employee as Prisma.EmployeeWhereInput),
       ...employeeWhere,
     };
   }
@@ -140,4 +143,3 @@ export async function findAllUser(prisma: PrismaService, options: FindAllUserOpt
     select,
   });
 }
-

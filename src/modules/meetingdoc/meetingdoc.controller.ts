@@ -27,7 +27,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @UseInterceptors(FileInterceptor('docfile', multerConfig('document')))
 @Controller('meetingdocs')
 export class MeetingdocController {
-  constructor(private readonly meetingdocService: MeetingdocService) { }
+  constructor(private readonly meetingdocService: MeetingdocService) {}
 
   @Post()
   @Roles(2)

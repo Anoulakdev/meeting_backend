@@ -4,7 +4,10 @@ import { UpdateMeetingdocDto } from './dto/update-meetingdoc.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../../interfaces/auth-user.interface';
 import { createMeetingDoc } from './services/create';
-import { FindAllMeetingDoc, FindAllMeetingDocOptions } from './services/findall';
+import {
+  FindAllMeetingDoc,
+  FindAllMeetingDocOptions,
+} from './services/findall';
 import { findOneMeetingDoc } from './services/findone';
 import { updateMeetingDoc } from './services/update';
 import { removeMeetingDoc } from './services/remove';
