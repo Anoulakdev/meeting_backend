@@ -28,6 +28,20 @@ export async function sendFCM(tokens: string[], title: string, body: string) {
       title,
       body,
     },
+    android: {
+      priority: 'high',
+    },
+    apns: {
+      payload: {
+        aps: {
+          sound: 'default',
+          badge: 1,
+        },
+      },
+      headers: {
+        'apns-priority': '10', // High priority for iOS APNs
+      },
+    },
   });
 
   // ✅ handle invalid token
