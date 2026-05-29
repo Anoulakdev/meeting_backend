@@ -19,7 +19,7 @@ export class AssignCronService {
       const endOfDay = now.clone().endOf('day').toDate();
 
       // ✅ [Performance] กำหนดช่วงนาทีแจ้งเตือนล่วงหน้า และคำนวณเป้าหมายสำหรับกรองในฐานข้อมูลโดยตรง
-      const intervals = [30, 15, 5]; // ปรับค่าตัวเลขที่นี่เมื่อต้องการเปลี่ยนนาทีแจ้งเตือน เช่น [10, 5, 1] หรือ [30, 15, 5]
+      const intervals = [10, 5, 1]; // ปรับค่าตัวเลขที่นี่เมื่อต้องการเปลี่ยนนาทีแจ้งเตือน เช่น [10, 5, 1] หรือ [30, 15, 5]
       const targetTimes = intervals.map((mins) =>
         now.clone().add(mins, 'minutes').format('HH:mm'),
       );
