@@ -39,6 +39,12 @@ export async function findOneMeetingDoc(prisma: PrismaService, id: number) {
           },
         },
       },
+      detailDocs: {
+        select: {
+          id: true,
+          dateActive: true,
+        },
+      },
     },
   });
   if (!meeting) throw new NotFoundException('meeting not found');

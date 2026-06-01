@@ -27,13 +27,18 @@ export async function createAssign(
     throw new Error('Meeting not found');
   }
 
+  const includeWeekend = createAssignDto.includeWeekend ?? true;
+
   // ✅ generate วันที่ (startDate → endDate)
   const dates: Date[] = [];
   const current = new Date(meeting.startDate);
   const end = new Date(meeting.endDate);
 
   while (current <= end) {
-    dates.push(new Date(current));
+    const day = current.getDay();
+    if (includeWeekend || (day !== 0 && day !== 6)) {
+      dates.push(new Date(current));
+    }
     current.setDate(current.getDate() + 1);
   }
 

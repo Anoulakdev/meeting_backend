@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsInt, IsArray } from 'class-validator';
+import { IsNotEmpty, IsInt, IsArray, IsBoolean, IsOptional } from 'class-validator';
 
 export class CreateAssignDto {
   @IsInt()
@@ -9,4 +9,8 @@ export class CreateAssignDto {
   @IsInt({ each: true })
   @IsNotEmpty()
   userId: number[];
+
+  @IsBoolean()
+  @IsOptional()
+  includeWeekend?: boolean;
 }
