@@ -33,7 +33,6 @@ export async function adminFindAll(prisma: PrismaService, user: AuthUser) {
         divisionId: {
           in: divisionIds,
         },
-        officeId: null,
       },
     };
   } else if (officeIds.length) {
@@ -44,7 +43,6 @@ export async function adminFindAll(prisma: PrismaService, user: AuthUser) {
         officeId: {
           in: officeIds,
         },
-        divisionId: null,
       },
     };
   } else {
