@@ -125,6 +125,7 @@ export async function createAssign(
       tokens,
       meeting.title,
       `ວັນເວລາ: ${dateText} ${meeting.startTime} - ${meeting.endTime} ສະຖານທີ່: ${meeting.location}`,
+      prisma,
     ).catch((err) => {
       console.error('Error sending background FCM:', err);
     });

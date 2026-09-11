@@ -36,11 +36,11 @@ export class MeetingdocService {
     return findOneMeetingDoc(this.prisma, id);
   }
 
-  update(id: number, updateMeetingdocDto: UpdateMeetingdocDto) {
-    return updateMeetingDoc(this.prisma, id, updateMeetingdocDto);
+  update(id: number, user: AuthUser, updateMeetingdocDto: UpdateMeetingdocDto) {
+    return updateMeetingDoc(this.prisma, id, user, updateMeetingdocDto);
   }
 
-  remove(id: number) {
-    return removeMeetingDoc(this.prisma, id);
+  remove(id: number, user: AuthUser) {
+    return removeMeetingDoc(this.prisma, id, user);
   }
 }

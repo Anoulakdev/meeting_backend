@@ -24,6 +24,10 @@ model User {
   assigns          Assign[]
   detailDocAssigns DetailDocAssign[]
   responsibles     Responsible[]
+
+  @@index([employeeId])
+  @@index([roleId])
+  @@index([status])
 }
 
 model Responsible {
@@ -72,6 +76,12 @@ model Employee {
   createdAt    DateTime    @default(now()) @db.Timestamptz(0)
   updatedAt    DateTime    @updatedAt @db.Timestamptz(0)
   user         User[]
+
+  @@index([posId])
+  @@index([departmentId])
+  @@index([divisionId])
+  @@index([officeId])
+  @@index([unitId])
 }
 
 model Department {
@@ -181,6 +191,7 @@ model Assign {
   assign       User       @relation(fields: [assignId], references: [id])
 
   @@unique([meetingDocId, assignId])
+  @@index([assignId])
 }
 
 model DetailDoc {
@@ -190,6 +201,9 @@ model DetailDoc {
   dateActive       DateTime          @db.Timestamptz(0)
   timeActive       String            @db.VarChar(50)
   detailDocAssigns DetailDocAssign[]
+
+  @@index([meetingDocId])
+  @@index([dateActive, timeActive])
 }
 
 model DetailDocAssign {
@@ -200,4 +214,5 @@ model DetailDocAssign {
   detailAssign   User      @relation(fields: [detailAssignId], references: [id])
 
   @@unique([detailDocId, detailAssignId])
+  @@index([detailAssignId])
 }

@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateAssignDto } from './create-assign.dto';
+import { IsArray, IsBoolean, IsInt, IsOptional } from 'class-validator';
 
-export class UpdateAssignDto extends PartialType(CreateAssignDto) {}
+export class UpdateAssignDto {
+  @IsArray()
+  @IsInt({ each: true })
+  @IsOptional()
+  userId?: number[];
+
+  @IsBoolean()
+  @IsOptional()
+  includeWeekend?: boolean;
+}

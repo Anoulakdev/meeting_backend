@@ -64,39 +64,46 @@ export async function createUser(prisma: PrismaService) {
   let created = 0;
   let skipped = 0;
 
-  // 🔹 batch size
-  const batchSize = 50;
-  for (let i = 0; i < employeesFromApi.length; i += batchSize) {
-    const batch = employeesFromApi.slice(i, i + batchSize);
+  const toCreate: {
+    username: string;
+    password: string;
+    employeeId: number;
+    roleId: number;
+  }[] = [];
 
-    // sequential loop ภายใน batch
-    for (const emp of batch) {
-      const employeeId = employeeMap.get(emp.emp_code);
+  for (const emp of employeesFromApi) {
+    const employeeId = employeeMap.get(emp.emp_code);
 
-      // ❌ ไม่มี employee ใน DB
-      if (!employeeId) {
-        console.warn(`Skip: employee not found for emp_code = ${emp.emp_code}`);
-        skipped++;
-        continue;
-      }
-
-      // ❌ user มีแล้ว
-      if (existingUsernames.has(emp.emp_code)) {
-        skipped++;
-        continue;
-      }
-
-      await prisma.user.create({
-        data: {
-          username: emp.emp_code,
-          password: hashedPassword,
-          employeeId: employeeId,
-          roleId: 3, // default role
-        },
-      });
-
-      created++;
+    // ❌ ไม่มี employee ใน DB
+    if (!employeeId) {
+      skipped++;
+      continue;
     }
+
+    // ❌ user มีแล้ว หรือซ้ำในชุดข้อมูล
+    if (existingUsernames.has(emp.emp_code)) {
+      skipped++;
+      continue;
+    }
+
+    existingUsernames.add(emp.emp_code);
+    toCreate.push({
+      username: emp.emp_code,
+      password: hashedPassword,
+      employeeId: employeeId,
+      roleId: 3, // default role
+    });
+  }
+
+  // 🔹 Insert in batches with createMany
+  const batchSize = 100;
+  for (let i = 0; i < toCreate.length; i += batchSize) {
+    const batch = toCreate.slice(i, i + batchSize);
+    const res = await prisma.user.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+    created += res.count;
   }
 
   return {

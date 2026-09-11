@@ -15,25 +15,27 @@ export class AssignCronService {
     this.logger.log('Cronjob is running... Checking for meetings.');
     try {
       const now = moment().tz('Asia/Vientiane').seconds(0).milliseconds(0);
-      const startOfDay = now.clone().startOf('day').toDate();
-      const endOfDay = now.clone().endOf('day').toDate();
 
-      // ✅ [Performance] กำหนดช่วงนาทีแจ้งเตือนล่วงหน้า และคำนวณเป้าหมายสำหรับกรองในฐานข้อมูลโดยตรง
-      const intervals = [30, 15, 5]; // ปรับค่าตัวเลขที่นี่เมื่อต้องการเปลี่ยนนาทีแจ้งเตือน เช่น [10, 5, 1] หรือ [30, 15, 5]
-      const targetTimes = intervals.map((mins) =>
-        now.clone().add(mins, 'minutes').format('HH:mm'),
-      );
+      // ✅ [Performance & Midnight Crossover] คำนวณวันและเวลาเป้าหมายสำหรับแต่ละช่วงนาทีแจ้งเตือนล่วงหน้า
+      const intervals = [30, 15, 5];
+      const targetConditions = intervals.map((mins) => {
+        const target = now.clone().add(mins, 'minutes');
+        const startOfTargetDay = target.clone().startOf('day').toDate();
+        const endOfTargetDay = target.clone().endOf('day').toDate();
+        const timeActive = target.format('HH:mm');
+        return {
+          dateActive: {
+            gte: startOfTargetDay,
+            lte: endOfTargetDay,
+          },
+          timeActive,
+        };
+      });
 
-      // ✅ [Performance] ดึงเฉพาะรายการห้องประชุมที่เวลาเริ่มตรงกับรอบเป้าหมายเท่านั้น ป้องกันปัญหา Memory Overhead
+      // ✅ ดึงเฉพาะรายการที่ตรงกับเป้าหมายวันและเวลาอย่างแม่นยำ แม้จะข้ามเที่ยงคืน
       const detailDocs = await this.prisma.detailDoc.findMany({
         where: {
-          dateActive: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
-          timeActive: {
-            in: targetTimes,
-          },
+          OR: targetConditions,
         },
         include: {
           meetingDoc: true,
@@ -103,7 +105,7 @@ export class AssignCronService {
             const title = `${doc.meetingDoc.title}`;
             const body = `ວັນເວລາ: ${dateText} ${doc.meetingDoc.startTime} - ${doc.meetingDoc.endTime} ສະຖານທີ່: ${doc.meetingDoc.location}`;
 
-            await sendFCM(uniqueTokens, title, body);
+            await sendFCM(uniqueTokens, title, body, this.prisma);
             this.logger.log(
               `[Cron] Sent FCM to ${uniqueTokens.length} devices for detailDoc ${doc.id} (${diffMinutes} mins left)`,
             );

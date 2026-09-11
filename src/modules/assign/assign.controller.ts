@@ -22,7 +22,7 @@ export class AssignController {
   constructor(private readonly assignService: AssignService) {}
 
   @Post()
-  @Roles(2)
+  @Roles(1, 2)
   create(@Body() createAssignDto: CreateAssignDto) {
     return this.assignService.create(createAssignDto);
   }
@@ -44,7 +44,7 @@ export class AssignController {
   }
 
   @Put(':id')
-  @Roles(2)
+  @Roles(1, 2)
   update(@Param('id') id: string, @Body() updateAssignDto: UpdateAssignDto) {
     return this.assignService.update(+id, updateAssignDto);
   }

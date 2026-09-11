@@ -2,6 +2,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { UpdateAssignDto } from '../dto/update-assign.dto';
 import { Prisma } from '../../../../generated/prisma/client';
 import { sendFCM } from '../../../fcm/fcm.service';
+import { NotFoundException } from '@nestjs/common';
 import moment from 'moment-timezone';
 
 export async function updateAssign(
@@ -10,40 +11,71 @@ export async function updateAssign(
   updateAssignDto: UpdateAssignDto,
 ) {
   const { userId } = updateAssignDto;
-
-  if (!userId?.length) {
-    throw new Error('userId is required');
-  }
-
-  const uniqueUserIds = [...new Set(userId)];
+  const userIds = userId ?? [];
+  const uniqueUserIds = [...new Set(userIds)];
 
   const meeting = await prisma.meetingDoc.findUnique({
     where: { id: Number(id) },
   });
 
   if (!meeting) {
-    throw new Error('Meeting not found');
+    throw new NotFoundException('Meeting not found');
+  }
+
+  // ✅ ถ้าส่ง userId เป็น array ว่าง แสดงว่าต้องการปลดผู้เข้าร่วมทั้งหมด (Unassign all)
+  if (uniqueUserIds.length === 0) {
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.detailDocAssign.deleteMany({
+        where: {
+          detailDoc: {
+            meetingDocId: Number(id),
+          },
+        },
+      });
+
+      await tx.detailDoc.deleteMany({
+        where: { meetingDocId: Number(id) },
+      });
+
+      await tx.assign.deleteMany({
+        where: { meetingDocId: Number(id) },
+      });
+
+      return {
+        message: 'All assigns removed successfully',
+        meetingDocId: Number(id),
+        deleted: true,
+        totalUsers: 0,
+        totalDays: 0,
+        totalDetailAssign: 0,
+      };
+    });
+
+    return {
+      ...result,
+      totalFCM: 0,
+    };
   }
 
   const includeWeekend = updateAssignDto.includeWeekend ?? true;
 
+  // ✅ คำนวณวันที่อย่างปลอดภัยโดยใช้ moment เพื่อไม่ให้เกิด timezone offset drift
   const dates: Date[] = [];
-  const current = new Date(meeting.startDate);
-  const end = new Date(meeting.endDate);
+  const current = moment(meeting.startDate).startOf('day');
+  const end = moment(meeting.endDate).startOf('day');
 
-  while (current <= end) {
-    const day = current.getDay();
+  while (current.isSameOrBefore(end, 'day')) {
+    const day = current.day();
     if (includeWeekend || (day !== 0 && day !== 6)) {
-      dates.push(new Date(current));
+      dates.push(current.toDate());
     }
-    current.setDate(current.getDate() + 1);
+    current.add(1, 'day');
   }
 
   const result = await prisma.$transaction(async (tx) => {
     // ===============================
-    // 🧹 0. DELETE OLD DATA (IMPORTANT)
+    // 🧹 0. DELETE OLD DATA
     // ===============================
-
     await tx.detailDocAssign.deleteMany({
       where: {
         detailDoc: {
@@ -139,11 +171,11 @@ export async function updateAssign(
     : `${startD.format('DD/MM/YYYY')} - ${endD.format('DD/MM/YYYY')}`;
 
   if (tokens.length > 0) {
-    // 🔥 ส่ง FCM ในรูปแบบ Asynchronous ใน Background โดยไม่ใช้ await ขวาง thread เพื่อป้องกันความล่าช้าในระดับ API Response
     sendFCM(
       tokens,
       meeting.title,
       `ວັນເວລາ: ${dateText} ${meeting.startTime} - ${meeting.endTime} ສະຖານທີ່: ${meeting.location}`,
+      prisma,
     ).catch((err) => {
       console.error('Error sending background FCM:', err);
     });

@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 // import { CreateUserDto } from './dto/create-user.dto';
@@ -55,7 +56,7 @@ export class UserController {
   }
 
   @Get('admin')
-  @Roles(2)
+  @Roles(1, 2)
   adminFindAll(@Req() req: UserRequest) {
     return this.userService.adminFindAll(req.user);
   }
@@ -78,7 +79,16 @@ export class UserController {
   }
 
   @Put('changepassword/:id')
-  changePassword(@Param('id') id: string, @Body() dto: ChangePasswordDto) {
+  changePassword(
+    @Param('id') id: string,
+    @Req() req: UserRequest,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    if (req.user.id !== +id && req.user.roleId !== 1) {
+      throw new ForbiddenException(
+        'You do not have permission to change this password',
+      );
+    }
     return this.userService.changePassword(+id, dto);
   }
 

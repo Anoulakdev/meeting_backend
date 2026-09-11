@@ -17,7 +17,7 @@ export async function updateResponsible(
     throw new Error('Please provide either divisionId or officeId, not both');
   }
 
-  if (!divisionId?.length && !officeId?.length) {
+  if (!Array.isArray(divisionId) && !Array.isArray(officeId)) {
     throw new Error('divisionId or officeId is required');
   }
 
@@ -54,11 +54,13 @@ export async function updateResponsible(
       }));
     }
 
-    // ✅ insert ใหม่
-    await tx.responsible.createMany({
-      data,
-      skipDuplicates: true,
-    });
+    // ✅ insert ใหม่ถ้ามีข้อมูล
+    if (data.length > 0) {
+      await tx.responsible.createMany({
+        data,
+        skipDuplicates: true,
+      });
+    }
 
     return {
       message: 'Update responsible success',

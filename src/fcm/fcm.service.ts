@@ -2,8 +2,6 @@ import * as admin from 'firebase-admin';
 import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 
-const prisma = new PrismaService();
-
 export function initFirebase() {
   if (admin.apps.length > 0) return;
 
@@ -20,7 +18,12 @@ export function initFirebase() {
 // ===============================
 // 🔥 send FCM
 // ===============================
-export async function sendFCM(tokens: string[], title: string, body: string) {
+export async function sendFCM(
+  tokens: string[],
+  title: string,
+  body: string,
+  prisma?: PrismaService,
+) {
   if (!tokens.length) return;
 
   initFirebase();
@@ -88,7 +91,7 @@ export async function sendFCM(tokens: string[], title: string, body: string) {
     });
   });
 
-  if (invalidTokens.length > 0) {
+  if (invalidTokens.length > 0 && prisma) {
     try {
       await prisma.fcmToken.deleteMany({
         where: {

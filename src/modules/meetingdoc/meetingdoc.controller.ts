@@ -24,13 +24,13 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@UseInterceptors(FileInterceptor('docfile', multerConfig('document')))
 @Controller('meetingdocs')
 export class MeetingdocController {
   constructor(private readonly meetingdocService: MeetingdocService) {}
 
   @Post()
-  @Roles(2)
+  @Roles(1, 2)
+  @UseInterceptors(FileInterceptor('docfile', multerConfig('document')))
   create(
     @UploadedFile() docfile: Express.Multer.File,
     @Req() req: UserRequest,
@@ -53,7 +53,7 @@ export class MeetingdocController {
   }
 
   @Get()
-  @Roles(2)
+  @Roles(1, 2)
   findAll(
     @Req() req: UserRequest,
     @Query('page') page?: number,
@@ -77,21 +77,23 @@ export class MeetingdocController {
   }
 
   @Put(':id')
-  @Roles(2)
+  @Roles(1, 2)
+  @UseInterceptors(FileInterceptor('docfile', multerConfig('document')))
   update(
     @Param('id') id: string,
+    @Req() req: UserRequest,
     @UploadedFile() docfile: Express.Multer.File,
     @Body() updateMeetingdocDto: UpdateMeetingdocDto,
   ) {
     if (docfile) {
       updateMeetingdocDto.docfile = docfile.filename;
     }
-    return this.meetingdocService.update(+id, updateMeetingdocDto);
+    return this.meetingdocService.update(+id, req.user, updateMeetingdocDto);
   }
 
   @Delete(':id')
-  @Roles(2)
-  remove(@Param('id') id: string) {
-    return this.meetingdocService.remove(+id);
+  @Roles(1, 2)
+  remove(@Param('id') id: string, @Req() req: UserRequest) {
+    return this.meetingdocService.remove(+id, req.user);
   }
 }

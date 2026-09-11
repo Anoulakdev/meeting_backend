@@ -16,9 +16,10 @@ export async function FindAllMeetingDoc(
   user: AuthUser,
   options: FindAllMeetingDocOptions = {},
 ) {
-  const where: Prisma.MeetingDocWhereInput = {
-    createdById: user.id,
-  };
+  const where: Prisma.MeetingDocWhereInput = {};
+  if (user.roleId !== 1) {
+    where.createdById = user.id;
+  }
 
   if (options.startDate) {
     where.startDate = {
