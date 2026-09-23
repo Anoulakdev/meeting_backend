@@ -18,6 +18,8 @@ import { MeetingdocModule } from './modules/meetingdoc/meetingdoc.module';
 import { AssignModule } from './modules/assign/assign.module';
 import { ResponsibleModule } from './modules/responsible/responsible.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { RelateddocModule } from './modules/relateddoc/relateddoc.module';
+import { RelatedassignModule } from './modules/relatedassign/relatedassign.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     MeetingdocModule,
     AssignModule,
     ResponsibleModule,
+    RelateddocModule,
+    RelatedassignModule,
   ],
   controllers: [AppController],
   providers: [AppService],

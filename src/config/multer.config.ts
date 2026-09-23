@@ -20,7 +20,7 @@ export const multerConfig = (destination?: string) => ({
     },
   }),
   limits: {
-    fileSize: 20 * 1024 * 1024, // 20MB max file size
+    fileSize: 100 * 1024 * 1024, // 100MB max file size
   },
   fileFilter: (req: any, file: Express.Multer.File, callback: any) => {
     const ext = extname(file.originalname).toLowerCase();
@@ -33,4 +33,3 @@ export const multerConfig = (destination?: string) => ({
     callback(null, true);
   },
 });
-

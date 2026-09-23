@@ -1,56 +1,48 @@
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuthUser } from '../../../interfaces/auth-user.interface';
-import { HttpStatus, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  HttpStatus,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export async function removeMeetingDoc(
+export async function removeRelatedDoc(
   prisma: PrismaService,
   id: number,
   user: AuthUser,
 ) {
-  const meeting = await prisma.meetingDoc.findUnique({
+  const related = await prisma.relatedDoc.findUnique({
     where: { id },
   });
-  if (!meeting) throw new NotFoundException('Meeting not found');
+  if (!related) throw new NotFoundException('Related document not found');
 
-  if (meeting.createdById !== user.id) {
-    throw new ForbiddenException('You do not have permission to delete this meeting');
+  if (related.createdById !== user.id) {
+    throw new ForbiddenException(
+      'You do not have permission to delete this document',
+    );
   }
 
   // ✅ 1. ลบข้อมูลในฐานข้อมูลให้สำเร็จใน Transaction ก่อน
   await prisma.$transaction([
-    // ลบ DetailDocAssign ก่อน
-    prisma.detailDocAssign.deleteMany({
-      where: {
-        detailDoc: {
-          meetingDocId: id,
-        },
-      },
-    }),
-
-    // ลบ DetailDoc
-    prisma.detailDoc.deleteMany({
-      where: { meetingDocId: id },
-    }),
-
     // ลบ Assign
-    prisma.assign.deleteMany({
-      where: { meetingDocId: id },
+    prisma.relatedAssign.deleteMany({
+      where: { relatedDocId: id },
     }),
 
     // ลบ MeetingDoc
-    prisma.meetingDoc.delete({
+    prisma.relatedDoc.delete({
       where: { id },
     }),
   ]);
 
   // ✅ 2. ลบไฟล์จริงออกจากดิสก์หลังจาก Database Transaction สำเร็จแล้วเท่านั้น
-  if (meeting.docfile) {
+  if (related.docfile) {
     const filePath = path.resolve(
       process.env.UPLOAD_BASE_PATH || '',
       'document',
-      meeting.docfile,
+      related.docfile,
     );
 
     fs.promises.unlink(filePath).catch((err) => {
@@ -60,6 +52,6 @@ export async function removeMeetingDoc(
 
   return {
     statusCode: HttpStatus.OK,
-    message: 'meetingdoc deleted successfully',
+    message: 'relateddoc deleted successfully',
   };
 }

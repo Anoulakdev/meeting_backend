@@ -26,7 +26,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @Roles(1)
+  // @Roles(1)
   create() {
     return this.userService.create();
   }

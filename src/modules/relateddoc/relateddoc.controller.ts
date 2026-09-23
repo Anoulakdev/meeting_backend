@@ -13,9 +13,9 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { MeetingdocService } from './meetingdoc.service';
-import { CreateMeetingdocDto } from './dto/create-meetingdoc.dto';
-import { UpdateMeetingdocDto } from './dto/update-meetingdoc.dto';
+import { RelateddocService } from './relateddoc.service';
+import { CreateRelateddocDto } from './dto/create-relateddoc.dto';
+import { UpdateRelateddocDto } from './dto/update-relateddoc.dto';
 import type { UserRequest } from '../../interfaces/user-request.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '../../config/multer.config';
@@ -24,9 +24,9 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('meetingdocs')
-export class MeetingdocController {
-  constructor(private readonly meetingdocService: MeetingdocService) {}
+@Controller('relateddocs')
+export class RelateddocController {
+  constructor(private readonly relateddocService: RelateddocService) {}
 
   @Post()
   @Roles(2)
@@ -34,19 +34,17 @@ export class MeetingdocController {
   create(
     @UploadedFile() docfile: Express.Multer.File,
     @Req() req: UserRequest,
-    @Body() createMeetingdocDto: CreateMeetingdocDto,
+    @Body() createRelateddocDto: CreateRelateddocDto,
   ) {
-    // ✅ บังคับต้องมี file
     if (!docfile) {
       throw new BadRequestException('docfile is required');
     }
-
     const Docfilename = docfile.filename;
     if (Docfilename) {
-      createMeetingdocDto.docfile = Docfilename;
+      createRelateddocDto.docfile = Docfilename;
     }
-    return this.meetingdocService.create(
-      createMeetingdocDto,
+    return this.relateddocService.create(
+      createRelateddocDto,
       req.user,
       Docfilename,
     );
@@ -59,13 +57,15 @@ export class MeetingdocController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('search') search?: string,
+    @Query('departmentId') departmentId?: number,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    return this.meetingdocService.findAll(req.user, {
+    return this.relateddocService.findAll(req.user, {
       page,
       limit,
       search,
+      departmentId,
       startDate,
       endDate,
     });
@@ -73,7 +73,7 @@ export class MeetingdocController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.meetingdocService.findOne(+id);
+    return this.relateddocService.findOne(+id);
   }
 
   @Put(':id')
@@ -81,19 +81,19 @@ export class MeetingdocController {
   @UseInterceptors(FileInterceptor('docfile', multerConfig('document')))
   update(
     @Param('id') id: string,
-    @Req() req: UserRequest,
     @UploadedFile() docfile: Express.Multer.File,
-    @Body() updateMeetingdocDto: UpdateMeetingdocDto,
+    @Req() req: UserRequest,
+    @Body() updateRelateddocDto: UpdateRelateddocDto,
   ) {
     if (docfile) {
-      updateMeetingdocDto.docfile = docfile.filename;
+      updateRelateddocDto.docfile = docfile.filename;
     }
-    return this.meetingdocService.update(+id, req.user, updateMeetingdocDto);
+    return this.relateddocService.update(+id, req.user, updateRelateddocDto);
   }
 
   @Delete(':id')
   @Roles(2)
   remove(@Param('id') id: string, @Req() req: UserRequest) {
-    return this.meetingdocService.remove(+id, req.user);
+    return this.relateddocService.remove(+id, req.user);
   }
 }

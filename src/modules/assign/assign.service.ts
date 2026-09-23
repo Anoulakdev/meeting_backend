@@ -4,7 +4,7 @@ import { UpdateAssignDto } from './dto/update-assign.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../../interfaces/auth-user.interface';
 import { createAssign } from './services/create';
-import { FindAllAssign } from './services/findall';
+import { FindAllAssign, FindAllAssignOptions } from './services/findall';
 import { findOneAssign } from './services/findone';
 import { updateAssign } from './services/update';
 import { detailDoc } from './services/detailDoc';
@@ -16,8 +16,8 @@ export class AssignService {
     return createAssign(this.prisma, createAssignDto);
   }
 
-  findAll(user: AuthUser) {
-    return FindAllAssign(this.prisma, user);
+  findAll(user: AuthUser, options?: FindAllAssignOptions) {
+    return FindAllAssign(this.prisma, user, options);
   }
 
   detailDoc() {

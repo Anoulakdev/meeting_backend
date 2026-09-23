@@ -3,39 +3,51 @@ import { AuthUser } from '../../../interfaces/auth-user.interface';
 import { Prisma } from '../../../../generated/prisma/client';
 import moment from 'moment-timezone';
 
-export class FindAllMeetingDocOptions {
+export class FindAllRelatedDocOptions {
   page?: number | string;
   limit?: number | string;
   search?: string;
+  departmentId?: number | string;
   startDate?: string;
   endDate?: string;
 }
 
-export async function FindAllMeetingDoc(
+export async function FindAllRelatedDoc(
   prisma: PrismaService,
   user: AuthUser,
-  options: FindAllMeetingDocOptions = {},
+  options: FindAllRelatedDocOptions = {},
 ) {
-  const where: Prisma.MeetingDocWhereInput = {
+  const where: Prisma.RelatedDocWhereInput = {
     createdById: user.id,
   };
 
-  if (options.startDate && options.startDate.trim() !== '') {
-    where.startDate = {
-      gte: moment
-        .tz(options.startDate, 'Asia/Vientiane')
-        .startOf('day')
-        .toDate(),
-    };
+  if (
+    options.departmentId !== undefined &&
+    options.departmentId !== null &&
+    options.departmentId !== '' &&
+    options.departmentId !== 'all' &&
+    !isNaN(Number(options.departmentId))
+  ) {
+    where.departmentId = Number(options.departmentId);
   }
 
-  if (options.endDate && options.endDate.trim() !== '') {
-    where.endDate = {
-      lte: moment
+  if (options.startDate || options.endDate) {
+    const createdAtFilter: Prisma.DateTimeFilter = {};
+    if (options.startDate && options.startDate.trim() !== '') {
+      createdAtFilter.gte = moment
+        .tz(options.startDate, 'Asia/Vientiane')
+        .startOf('day')
+        .toDate();
+    }
+    if (options.endDate && options.endDate.trim() !== '') {
+      createdAtFilter.lte = moment
         .tz(options.endDate, 'Asia/Vientiane')
         .endOf('day')
-        .toDate(),
-    };
+        .toDate();
+    }
+    if (Object.keys(createdAtFilter).length > 0) {
+      where.createdAt = createdAtFilter;
+    }
   }
 
   if (options.search) {
@@ -43,7 +55,6 @@ export async function FindAllMeetingDoc(
     if (searchLower) {
       where.OR = [
         { title: { contains: searchLower, mode: 'insensitive' } },
-        { location: { contains: searchLower, mode: 'insensitive' } },
         { description: { contains: searchLower, mode: 'insensitive' } },
       ];
     }
@@ -59,6 +70,13 @@ export async function FindAllMeetingDoc(
       : undefined;
 
   const include = {
+    department: {
+      select: {
+        id: true,
+        department_name: true,
+        department_code: true,
+      },
+    },
     createdBy: {
       select: {
         id: true,
@@ -73,7 +91,7 @@ export async function FindAllMeetingDoc(
         },
       },
     },
-    assigns: true,
+    relatedAssigns: true,
   };
 
   if (page !== undefined || limit !== undefined) {
@@ -83,7 +101,7 @@ export async function FindAllMeetingDoc(
     const take = limit;
 
     const [data, total] = await Promise.all([
-      prisma.meetingDoc.findMany({
+      prisma.relatedDoc.findMany({
         where,
         orderBy: {
           id: 'desc',
@@ -92,22 +110,16 @@ export async function FindAllMeetingDoc(
         skip,
         take,
       }),
-      prisma.meetingDoc.count({ where }),
+      prisma.relatedDoc.count({ where }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
 
-    const mappedData = data.map((meeting) => {
+    const mappedData = data.map((related) => {
       return {
-        ...meeting,
-        startDate: moment(meeting.startDate)
-          .tz('Asia/Vientiane')
-          .format('YYYY-MM-DD'),
-        endDate: moment(meeting.endDate)
-          .tz('Asia/Vientiane')
-          .format('YYYY-MM-DD'),
-        createdAt: moment(meeting.createdAt).tz('Asia/Vientiane').format(),
-        updatedAt: moment(meeting.updatedAt).tz('Asia/Vientiane').format(),
+        ...related,
+        createdAt: moment(related.createdAt).tz('Asia/Vientiane').format(),
+        updatedAt: moment(related.updatedAt).tz('Asia/Vientiane').format(),
       };
     });
 
@@ -120,7 +132,7 @@ export async function FindAllMeetingDoc(
     };
   }
 
-  const meetings = await prisma.meetingDoc.findMany({
+  const relateds = await prisma.relatedDoc.findMany({
     where,
     orderBy: {
       id: 'desc',
@@ -128,17 +140,11 @@ export async function FindAllMeetingDoc(
     include,
   });
 
-  return meetings.map((meeting) => {
+  return relateds.map((related) => {
     return {
-      ...meeting,
-      startDate: moment(meeting.startDate)
-        .tz('Asia/Vientiane')
-        .format('YYYY-MM-DD'),
-      endDate: moment(meeting.endDate)
-        .tz('Asia/Vientiane')
-        .format('YYYY-MM-DD'),
-      createdAt: moment(meeting.createdAt).tz('Asia/Vientiane').format(),
-      updatedAt: moment(meeting.updatedAt).tz('Asia/Vientiane').format(),
+      ...related,
+      createdAt: moment(related.createdAt).tz('Asia/Vientiane').format(),
+      updatedAt: moment(related.updatedAt).tz('Asia/Vientiane').format(),
     };
   });
 }

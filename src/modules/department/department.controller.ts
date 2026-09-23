@@ -23,6 +23,11 @@ export class DepartmentController {
     return this.departmentService.findAll();
   }
 
+  @Get('select')
+  selectDepartment() {
+    return this.departmentService.selectDepartment();
+  }
+
   @Get(':id')
   @Roles(1)
   findOne(@Param('id') id: string) {

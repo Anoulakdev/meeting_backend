@@ -3,10 +3,11 @@ import { AuthUser } from '../../../interfaces/auth-user.interface';
 import { Prisma } from '../../../../generated/prisma/client';
 import moment from 'moment-timezone';
 
-export class FindAllAssignOptions {
+export class FindAllRelatedAssignOptions {
   page?: number | string;
   limit?: number | string;
   search?: string;
+  departmentId?: number | string;
   startDate?: string;
   endDate?: string;
 }
@@ -14,45 +15,55 @@ export class FindAllAssignOptions {
 export async function FindAllAssign(
   prisma: PrismaService,
   user: AuthUser,
-  options: FindAllAssignOptions = {},
+  options: FindAllRelatedAssignOptions = {},
 ) {
-  const where: Prisma.AssignWhereInput = {
-    assignId: user.id,
+  const where: Prisma.RelatedAssignWhereInput = {
+    relatedAssignId: user.id,
   };
 
-  const meetingDocWhere: Prisma.MeetingDocWhereInput = {};
+  const relatedDocWhere: Prisma.RelatedDocWhereInput = {};
 
-  if (options.startDate) {
-    meetingDocWhere.startDate = {
-      gte: moment
-        .tz(options.startDate, 'Asia/Vientiane')
-        .startOf('day')
-        .toDate(),
-    };
+  if (
+    options.departmentId !== undefined &&
+    options.departmentId !== null &&
+    options.departmentId !== '' &&
+    options.departmentId !== 'all' &&
+    !isNaN(Number(options.departmentId))
+  ) {
+    relatedDocWhere.departmentId = Number(options.departmentId);
   }
 
-  if (options.endDate) {
-    meetingDocWhere.endDate = {
-      lte: moment
+  if (options.startDate || options.endDate) {
+    const createdAtFilter: Prisma.DateTimeFilter = {};
+    if (options.startDate && options.startDate.trim() !== '') {
+      createdAtFilter.gte = moment
+        .tz(options.startDate, 'Asia/Vientiane')
+        .startOf('day')
+        .toDate();
+    }
+    if (options.endDate && options.endDate.trim() !== '') {
+      createdAtFilter.lte = moment
         .tz(options.endDate, 'Asia/Vientiane')
         .endOf('day')
-        .toDate(),
-    };
+        .toDate();
+    }
+    if (Object.keys(createdAtFilter).length > 0) {
+      relatedDocWhere.createdAt = createdAtFilter;
+    }
   }
 
   if (options.search) {
     const searchLower = options.search.trim();
     if (searchLower) {
-      meetingDocWhere.OR = [
+      relatedDocWhere.OR = [
         { title: { contains: searchLower, mode: 'insensitive' } },
-        { location: { contains: searchLower, mode: 'insensitive' } },
         { description: { contains: searchLower, mode: 'insensitive' } },
       ];
     }
   }
 
-  if (Object.keys(meetingDocWhere).length > 0) {
-    where.meetingDoc = meetingDocWhere;
+  if (Object.keys(relatedDocWhere).length > 0) {
+    where.relatedDoc = relatedDocWhere;
   }
 
   let page =
@@ -65,7 +76,17 @@ export async function FindAllAssign(
       : undefined;
 
   const include = {
-    meetingDoc: true,
+    relatedDoc: {
+      include: {
+        department: {
+          select: {
+            id: true,
+            department_name: true,
+            department_code: true,
+          },
+        },
+      },
+    },
   };
 
   if (page !== undefined || limit !== undefined) {
@@ -75,16 +96,16 @@ export async function FindAllAssign(
     const take = limit;
 
     const [data, total] = await Promise.all([
-      prisma.assign.findMany({
+      prisma.relatedAssign.findMany({
         where,
         orderBy: {
-          meetingDocId: 'desc',
+          id: 'desc',
         },
         include,
         skip,
         take,
       }),
-      prisma.assign.count({ where }),
+      prisma.relatedAssign.count({ where }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -92,14 +113,12 @@ export async function FindAllAssign(
     const mappedData = data.map((assign) => {
       return {
         ...assign,
-        meetingDoc: {
-          ...assign.meetingDoc,
-          startDate: moment(assign.meetingDoc.startDate).format('YYYY-MM-DD'),
-          endDate: moment(assign.meetingDoc.endDate).format('YYYY-MM-DD'),
-          createdAt: moment(assign.meetingDoc.createdAt)
+        relatedDoc: {
+          ...assign.relatedDoc,
+          createdAt: moment(assign.relatedDoc.createdAt)
             .tz('Asia/Vientiane')
             .format(),
-          updatedAt: moment(assign.meetingDoc.updatedAt)
+          updatedAt: moment(assign.relatedDoc.updatedAt)
             .tz('Asia/Vientiane')
             .format(),
         },
@@ -115,10 +134,10 @@ export async function FindAllAssign(
     };
   }
 
-  const assigns = await prisma.assign.findMany({
+  const assigns = await prisma.relatedAssign.findMany({
     where,
     orderBy: {
-      meetingDocId: 'desc',
+      id: 'desc',
     },
     include,
   });
@@ -126,14 +145,12 @@ export async function FindAllAssign(
   return assigns.map((assign) => {
     return {
       ...assign,
-      meetingDoc: {
-        ...assign.meetingDoc,
-        startDate: moment(assign.meetingDoc.startDate).format('YYYY-MM-DD'),
-        endDate: moment(assign.meetingDoc.endDate).format('YYYY-MM-DD'),
-        createdAt: moment(assign.meetingDoc.createdAt)
+      relatedDoc: {
+        ...assign.relatedDoc,
+        createdAt: moment(assign.relatedDoc.createdAt)
           .tz('Asia/Vientiane')
           .format(),
-        updatedAt: moment(assign.meetingDoc.updatedAt)
+        updatedAt: moment(assign.relatedDoc.updatedAt)
           .tz('Asia/Vientiane')
           .format(),
       },

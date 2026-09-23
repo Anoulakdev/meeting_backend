@@ -22,7 +22,7 @@ export async function updateMeetingDoc(
   });
   if (!meeting) throw new NotFoundException('meeting not found');
 
-  if (user.roleId !== 1 && meeting.createdById !== user.id) {
+  if (meeting.createdById !== user.id) {
     throw new ForbiddenException('You do not have permission to edit this meeting');
   }
 

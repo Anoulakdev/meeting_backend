@@ -21,8 +21,10 @@ model User {
   updatedAt        DateTime          @updatedAt @db.Timestamptz(0)
   fcmtokens        FcmToken[]
   meetingDocs      MeetingDoc[]
+  relatedDocs      RelatedDoc[]
   assigns          Assign[]
   detailDocAssigns DetailDocAssign[]
+  relatedAssigns   RelatedAssign[]
   responsibles     Responsible[]
 
   @@index([employeeId])
@@ -85,12 +87,13 @@ model Employee {
 }
 
 model Department {
-  id                Int        @id
-  department_name   String?    @db.VarChar(255)
-  department_code   String?    @db.VarChar(50)
-  department_status String     @default("A") @db.VarChar(50)
+  id                Int          @id
+  department_name   String?      @db.VarChar(255)
+  department_code   String?      @db.VarChar(50)
+  department_status String       @default("A") @db.VarChar(50)
   divisions         Division[]
   employees         Employee[]
+  relatedDocs       RelatedDoc[]
 }
 
 model Division {
@@ -181,6 +184,9 @@ model MeetingDoc {
   detailDocs  DetailDoc[]
 
   @@index([createdById])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([createdAt])
 }
 
 model Assign {
@@ -215,4 +221,33 @@ model DetailDocAssign {
 
   @@unique([detailDocId, detailAssignId])
   @@index([detailAssignId])
+}
+
+model RelatedDoc {
+  id             Int             @id @default(autoincrement())
+  title          String          @db.VarChar(255)
+  description    String?         @db.Text
+  docfile        String          @db.VarChar(255)
+  departmentId   Int?
+  department     Department?     @relation(fields: [departmentId], references: [id])
+  createdById    Int
+  createdBy      User            @relation(fields: [createdById], references: [id])
+  createdAt      DateTime        @default(now()) @db.Timestamptz(0)
+  updatedAt      DateTime        @updatedAt @db.Timestamptz(0)
+  relatedAssigns RelatedAssign[]
+
+  @@index([createdById])
+  @@index([departmentId])
+  @@index([createdAt])
+}
+
+model RelatedAssign {
+  id              Int        @id @default(autoincrement())
+  relatedDocId    Int
+  relatedDoc      RelatedDoc @relation(fields: [relatedDocId], references: [id])
+  relatedAssignId Int
+  relatedAssign   User       @relation(fields: [relatedAssignId], references: [id])
+
+  @@unique([relatedDocId, relatedAssignId])
+  @@index([relatedAssignId])
 }

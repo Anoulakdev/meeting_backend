@@ -184,8 +184,40 @@ CREATE TABLE "DetailDocAssign" (
     CONSTRAINT "DetailDocAssign_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "RelatedDoc" (
+    "id" SERIAL NOT NULL,
+    "title" VARCHAR(255) NOT NULL,
+    "description" TEXT,
+    "docfile" VARCHAR(255) NOT NULL,
+    "departmentId" INTEGER,
+    "createdById" INTEGER NOT NULL,
+    "createdAt" TIMESTAMPTZ(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ(0) NOT NULL,
+
+    CONSTRAINT "RelatedDoc_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RelatedAssign" (
+    "id" SERIAL NOT NULL,
+    "relatedDocId" INTEGER NOT NULL,
+    "relatedAssignId" INTEGER NOT NULL,
+
+    CONSTRAINT "RelatedAssign_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE INDEX "User_employeeId_idx" ON "User"("employeeId");
+
+-- CreateIndex
+CREATE INDEX "User_roleId_idx" ON "User"("roleId");
+
+-- CreateIndex
+CREATE INDEX "User_status_idx" ON "User"("status");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Responsible_userId_divisionId_officeId_key" ON "Responsible"("userId", "divisionId", "officeId");
@@ -197,13 +229,64 @@ CREATE UNIQUE INDEX "FcmToken_userId_platform_model_key" ON "FcmToken"("userId",
 CREATE UNIQUE INDEX "Employee_emp_code_key" ON "Employee"("emp_code");
 
 -- CreateIndex
+CREATE INDEX "Employee_posId_idx" ON "Employee"("posId");
+
+-- CreateIndex
+CREATE INDEX "Employee_departmentId_idx" ON "Employee"("departmentId");
+
+-- CreateIndex
+CREATE INDEX "Employee_divisionId_idx" ON "Employee"("divisionId");
+
+-- CreateIndex
+CREATE INDEX "Employee_officeId_idx" ON "Employee"("officeId");
+
+-- CreateIndex
+CREATE INDEX "Employee_unitId_idx" ON "Employee"("unitId");
+
+-- CreateIndex
 CREATE INDEX "MeetingDoc_createdById_idx" ON "MeetingDoc"("createdById");
+
+-- CreateIndex
+CREATE INDEX "MeetingDoc_startDate_idx" ON "MeetingDoc"("startDate");
+
+-- CreateIndex
+CREATE INDEX "MeetingDoc_endDate_idx" ON "MeetingDoc"("endDate");
+
+-- CreateIndex
+CREATE INDEX "MeetingDoc_createdAt_idx" ON "MeetingDoc"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "Assign_assignId_idx" ON "Assign"("assignId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Assign_meetingDocId_assignId_key" ON "Assign"("meetingDocId", "assignId");
 
 -- CreateIndex
+CREATE INDEX "DetailDoc_meetingDocId_idx" ON "DetailDoc"("meetingDocId");
+
+-- CreateIndex
+CREATE INDEX "DetailDoc_dateActive_timeActive_idx" ON "DetailDoc"("dateActive", "timeActive");
+
+-- CreateIndex
+CREATE INDEX "DetailDocAssign_detailAssignId_idx" ON "DetailDocAssign"("detailAssignId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "DetailDocAssign_detailDocId_detailAssignId_key" ON "DetailDocAssign"("detailDocId", "detailAssignId");
+
+-- CreateIndex
+CREATE INDEX "RelatedDoc_createdById_idx" ON "RelatedDoc"("createdById");
+
+-- CreateIndex
+CREATE INDEX "RelatedDoc_departmentId_idx" ON "RelatedDoc"("departmentId");
+
+-- CreateIndex
+CREATE INDEX "RelatedDoc_createdAt_idx" ON "RelatedDoc"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "RelatedAssign_relatedAssignId_idx" ON "RelatedAssign"("relatedAssignId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RelatedAssign_relatedDocId_relatedAssignId_key" ON "RelatedAssign"("relatedDocId", "relatedAssignId");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -273,3 +356,15 @@ ALTER TABLE "DetailDocAssign" ADD CONSTRAINT "DetailDocAssign_detailDocId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "DetailDocAssign" ADD CONSTRAINT "DetailDocAssign_detailAssignId_fkey" FOREIGN KEY ("detailAssignId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RelatedDoc" ADD CONSTRAINT "RelatedDoc_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "Department"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RelatedDoc" ADD CONSTRAINT "RelatedDoc_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RelatedAssign" ADD CONSTRAINT "RelatedAssign_relatedDocId_fkey" FOREIGN KEY ("relatedDocId") REFERENCES "RelatedDoc"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RelatedAssign" ADD CONSTRAINT "RelatedAssign_relatedAssignId_fkey" FOREIGN KEY ("relatedAssignId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

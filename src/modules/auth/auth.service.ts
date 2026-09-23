@@ -99,33 +99,24 @@ export class AuthService {
     }
 
     if (platform && model && fcmtoken) {
-      const checkfcm = await this.prisma.fcmToken.findFirst({
+      await this.prisma.fcmToken.upsert({
         where: {
+          userId_platform_model: {
+            userId: user.id,
+            platform,
+            model,
+          },
+        },
+        update: {
+          fcmtoken,
+        },
+        create: {
           userId: user.id,
-          platform: platform,
-          model: model,
+          platform,
+          model,
+          fcmtoken,
         },
       });
-
-      if (checkfcm) {
-        await this.prisma.fcmToken.update({
-          where: {
-            id: checkfcm.id,
-          },
-          data: {
-            fcmtoken: fcmtoken,
-          },
-        });
-      } else {
-        await this.prisma.fcmToken.create({
-          data: {
-            userId: user.id,
-            platform: platform,
-            model: model,
-            fcmtoken: fcmtoken,
-          },
-        });
-      }
     }
 
     const payload = {

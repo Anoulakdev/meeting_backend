@@ -5,6 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { createDepartment } from './services/create';
 import { findAllDepartment } from './services/findall';
 import { findOneDepartment } from './services/findone';
+import { selectDepartment } from './services/selectDepartment';
 
 @Injectable()
 export class DepartmentService {
@@ -16,6 +17,10 @@ export class DepartmentService {
 
   findAll() {
     return findAllDepartment(this.prisma);
+  }
+
+  selectDepartment() {
+    return selectDepartment(this.prisma);
   }
 
   findOne(id: number) {

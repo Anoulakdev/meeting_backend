@@ -9,23 +9,23 @@ import {
   Req,
   Query,
 } from '@nestjs/common';
-import { AssignService } from './assign.service';
-import { CreateAssignDto } from './dto/create-assign.dto';
-import { UpdateAssignDto } from './dto/update-assign.dto';
+import { RelatedassignService } from './relatedassign.service';
+import { CreateRelatedassignDto } from './dto/create-relatedassign.dto';
+import { UpdateRelatedassignDto } from './dto/update-relatedassign.dto';
 import type { UserRequest } from '../../interfaces/user-request.interface';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('assigns')
-export class AssignController {
-  constructor(private readonly assignService: AssignService) {}
+@Controller('relatedassigns')
+export class RelatedassignController {
+  constructor(private readonly relatedassignService: RelatedassignService) {}
 
   @Post()
   @Roles(2)
-  create(@Body() createAssignDto: CreateAssignDto) {
-    return this.assignService.create(createAssignDto);
+  create(@Body() createRelatedassignDto: CreateRelatedassignDto) {
+    return this.relatedassignService.create(createRelatedassignDto);
   }
 
   @Get()
@@ -34,32 +34,31 @@ export class AssignController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('search') search?: string,
+    @Query('departmentId') departmentId?: number,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    return this.assignService.findAll(req.user, {
+    return this.relatedassignService.findAll(req.user, {
       page,
       limit,
       search,
+      departmentId,
       startDate,
       endDate,
     });
   }
 
-  @Get('detaildoc')
-  @Roles(2)
-  detailDoc() {
-    return this.assignService.detailDoc();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.assignService.findOne(+id);
+    return this.relatedassignService.findOne(+id);
   }
 
   @Put(':id')
   @Roles(2)
-  update(@Param('id') id: string, @Body() updateAssignDto: UpdateAssignDto) {
-    return this.assignService.update(+id, updateAssignDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateRelatedassignDto: UpdateRelatedassignDto,
+  ) {
+    return this.relatedassignService.update(+id, updateRelatedassignDto);
   }
 }
