@@ -15,11 +15,17 @@ export async function detailDoc(prisma: PrismaService) {
   return details.map((detail) => {
     return {
       ...detail,
-      dateActive: moment(detail.dateActive).format('YYYY-MM-DD'),
+      dateActive: moment(detail.dateActive)
+        .tz('Asia/Vientiane')
+        .format('YYYY-MM-DD'),
       meetingDoc: {
         ...detail.meetingDoc,
-        startDate: moment(detail.meetingDoc.startDate).format('YYYY-MM-DD'),
-        endDate: moment(detail.meetingDoc.endDate).format('YYYY-MM-DD'),
+        startDate: moment(detail.meetingDoc.startDate)
+          .tz('Asia/Vientiane')
+          .format('YYYY-MM-DD'),
+        endDate: moment(detail.meetingDoc.endDate)
+          .tz('Asia/Vientiane')
+          .format('YYYY-MM-DD'),
         createdAt: moment(detail.meetingDoc.createdAt)
           .tz('Asia/Vientiane')
           .format(),

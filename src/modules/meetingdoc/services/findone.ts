@@ -50,8 +50,12 @@ export async function findOneMeetingDoc(prisma: PrismaService, id: number) {
   if (!meeting) throw new NotFoundException('meeting not found');
   return {
     ...meeting,
-    startDate: moment(meeting.startDate).format('YYYY-MM-DD'),
-    endDate: moment(meeting.endDate).format('YYYY-MM-DD'),
+    startDate: moment(meeting.startDate)
+      .tz('Asia/Vientiane')
+      .format('YYYY-MM-DD'),
+    endDate: moment(meeting.endDate)
+      .tz('Asia/Vientiane')
+      .format('YYYY-MM-DD'),
     createdAt: moment(meeting.createdAt).tz('Asia/Vientiane').format(),
     updatedAt: moment(meeting.updatedAt).tz('Asia/Vientiane').format(),
   };

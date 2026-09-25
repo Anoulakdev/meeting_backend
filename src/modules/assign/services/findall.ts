@@ -94,8 +94,12 @@ export async function FindAllAssign(
         ...assign,
         meetingDoc: {
           ...assign.meetingDoc,
-          startDate: moment(assign.meetingDoc.startDate).format('YYYY-MM-DD'),
-          endDate: moment(assign.meetingDoc.endDate).format('YYYY-MM-DD'),
+          startDate: moment(assign.meetingDoc.startDate)
+            .tz('Asia/Vientiane')
+            .format('YYYY-MM-DD'),
+          endDate: moment(assign.meetingDoc.endDate)
+            .tz('Asia/Vientiane')
+            .format('YYYY-MM-DD'),
           createdAt: moment(assign.meetingDoc.createdAt)
             .tz('Asia/Vientiane')
             .format(),
@@ -128,8 +132,12 @@ export async function FindAllAssign(
       ...assign,
       meetingDoc: {
         ...assign.meetingDoc,
-        startDate: moment(assign.meetingDoc.startDate).format('YYYY-MM-DD'),
-        endDate: moment(assign.meetingDoc.endDate).format('YYYY-MM-DD'),
+        startDate: moment(assign.meetingDoc.startDate)
+          .tz('Asia/Vientiane')
+          .format('YYYY-MM-DD'),
+        endDate: moment(assign.meetingDoc.endDate)
+          .tz('Asia/Vientiane')
+          .format('YYYY-MM-DD'),
         createdAt: moment(assign.meetingDoc.createdAt)
           .tz('Asia/Vientiane')
           .format(),

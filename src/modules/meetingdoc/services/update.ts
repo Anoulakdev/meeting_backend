@@ -47,9 +47,11 @@ export async function updateMeetingDoc(
 
   const dateOrTimeChanged =
     (updateMeetingdocDto.startDate &&
-      updateMeetingdocDto.startDate !== moment(meeting.startDate).format('YYYY-MM-DD')) ||
+      updateMeetingdocDto.startDate !==
+        moment(meeting.startDate).tz('Asia/Vientiane').format('YYYY-MM-DD')) ||
     (updateMeetingdocDto.endDate &&
-      updateMeetingdocDto.endDate !== moment(meeting.endDate).format('YYYY-MM-DD')) ||
+      updateMeetingdocDto.endDate !==
+        moment(meeting.endDate).tz('Asia/Vientiane').format('YYYY-MM-DD')) ||
     (updateMeetingdocDto.startTime &&
       updateMeetingdocDto.startTime !== meeting.startTime);
 
@@ -74,8 +76,8 @@ export async function updateMeetingDoc(
       });
 
       const dates: Date[] = [];
-      const current = moment(newStartDate).startOf('day');
-      const end = moment(newEndDate).startOf('day');
+      const current = moment(newStartDate).tz('Asia/Vientiane').startOf('day');
+      const end = moment(newEndDate).tz('Asia/Vientiane').startOf('day');
 
       while (current.isSameOrBefore(end, 'day')) {
         const day = current.day();

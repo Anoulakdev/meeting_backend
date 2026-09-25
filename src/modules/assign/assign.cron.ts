@@ -12,7 +12,7 @@ export class AssignCronService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async checkMeetingsAndNotify() {
-    this.logger.log('Cronjob is running... Checking for meetings.');
+    this.logger.debug('Cronjob is running... Checking for meetings.');
     try {
       const now = moment().tz('Asia/Vientiane').seconds(0).milliseconds(0);
 
@@ -51,9 +51,11 @@ export class AssignCronService {
         },
       });
 
-      this.logger.log(
-        `Found ${detailDocs.length} active detailDocs for this minute.`,
-      );
+      if (detailDocs.length > 0) {
+        this.logger.log(
+          `Found ${detailDocs.length} active detailDocs for this minute.`,
+        );
+      }
 
       let sentCount = 0;
 
@@ -115,7 +117,7 @@ export class AssignCronService {
       }
 
       if (sentCount === 0) {
-        this.logger.log(
+        this.logger.debug(
           'Cronjob finished: No notifications needed to be sent this minute.',
         );
       } else {

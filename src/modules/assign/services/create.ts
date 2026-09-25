@@ -29,17 +29,17 @@ export async function createAssign(
 
   const includeWeekend = createAssignDto.includeWeekend ?? true;
 
-  // ✅ generate วันที่ (startDate → endDate)
+  // ✅ generate วันที่ (startDate → endDate) โดยใช้ Asia/Vientiane
   const dates: Date[] = [];
-  const current = new Date(meeting.startDate);
-  const end = new Date(meeting.endDate);
+  const current = moment(meeting.startDate).tz('Asia/Vientiane').startOf('day');
+  const end = moment(meeting.endDate).tz('Asia/Vientiane').startOf('day');
 
-  while (current <= end) {
-    const day = current.getDay();
+  while (current.isSameOrBefore(end, 'day')) {
+    const day = current.day();
     if (includeWeekend || (day !== 0 && day !== 6)) {
-      dates.push(new Date(current));
+      dates.push(current.toDate());
     }
-    current.setDate(current.getDate() + 1);
+    current.add(1, 'day');
   }
 
   const result = await prisma.$transaction(async (tx) => {
@@ -112,8 +112,8 @@ export async function createAssign(
     new Set(fcmTokens.map((t) => t.fcmtoken).filter(Boolean)),
   );
 
-  const startD = moment(meeting.startDate);
-  const endD = moment(meeting.endDate);
+  const startD = moment(meeting.startDate).tz('Asia/Vientiane');
+  const endD = moment(meeting.endDate).tz('Asia/Vientiane');
 
   const dateText = startD.isSame(endD, 'day')
     ? startD.format('DD/MM/YYYY')

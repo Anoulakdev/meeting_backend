@@ -61,8 +61,8 @@ export async function updateAssign(
 
   // ✅ คำนวณวันที่อย่างปลอดภัยโดยใช้ moment เพื่อไม่ให้เกิด timezone offset drift
   const dates: Date[] = [];
-  const current = moment(meeting.startDate).startOf('day');
-  const end = moment(meeting.endDate).startOf('day');
+  const current = moment(meeting.startDate).tz('Asia/Vientiane').startOf('day');
+  const end = moment(meeting.endDate).tz('Asia/Vientiane').startOf('day');
 
   while (current.isSameOrBefore(end, 'day')) {
     const day = current.day();
@@ -163,8 +163,8 @@ export async function updateAssign(
     new Set(fcmTokens.map((t) => t.fcmtoken).filter(Boolean)),
   );
 
-  const startD = moment(meeting.startDate);
-  const endD = moment(meeting.endDate);
+  const startD = moment(meeting.startDate).tz('Asia/Vientiane');
+  const endD = moment(meeting.endDate).tz('Asia/Vientiane');
 
   const dateText = startD.isSame(endD, 'day')
     ? startD.format('DD/MM/YYYY')
